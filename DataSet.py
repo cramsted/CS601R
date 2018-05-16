@@ -50,7 +50,8 @@ class DataSet:
         except:
             print("File does not exist!")
             sys.exit()
-        return img
+        ratio = 500 / img.shape[0]
+        return cv2.resize(img, (0, 0), fx=ratio, fy=ratio)
 
 
 if __name__ == '__main__':

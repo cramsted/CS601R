@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from sklearn.cluster import MiniBatchKMeans
+import matplotlib.pyplot as plt
 
 
 def LBP(img):
@@ -17,18 +18,6 @@ def LBP(img):
     ymax, xmax = img.shape
     for x, y in offsets:
         masks.append(img[1+y:ymax-1+y, 1+x:xmax-1+x] > img[1:-1, 1:-1])
-    # masks.append(image[:-1, 1:] > image[1:, :-1])
-    # # chops off the last column to keep images the same size
-    # masks.append(image[:-1, 1:] > image[:-1, :-1])
-    # masks.append(image[1:, 1:] > image[:-1, :-1])
-    # # chops off the last column to keep images the same size
-    # masks.append(image[1:, :-1] > image[:-1, :-1])
-    # masks.append(image[1:, :-1] > image[:-1, 1:])
-    # # chops off the last column to keep images the same size
-    # masks.append(image[:-1, :-1] > image[:-1, 1:])
-    # masks.append(image[:-1, :-1] > image[1:, 1:])
-    # # chops off the last column to keep images the same size
-    # masks.append(image[:-1, :-1] > image[1:, :-1])
     lbp = np.zeros(masks[-1].shape)
     for i, mask in enumerate(masks):
         lbp += mask * 2**i
@@ -62,4 +51,6 @@ def getPatchFor(keypoint, image, out_size=(64, 64)):
 
 def vector_quantization(features):
     mbk = MiniBatchKMeans(n_clusters=200)
-    return mbk.fit_predict(features)
+    vq = mbk.fit_predict(features)
+    vals, bounds, _ = plt.hist(vq, bins=200, histtype='step')
+    return vals
