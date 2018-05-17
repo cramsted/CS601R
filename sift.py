@@ -12,17 +12,32 @@ ds = DataSet()
 data_train = ds.butterfly_train
 data_test = ds.butterfly_test
 
-sift_features = np.empty((0, 128))
+mbk = MiniBatchKMeans(n_clusters=200)
+
+
+def vector_quantization_train(features):
+    sift_features = np.empty((0, 128))
+    for f, label in features:
+        mbk.partial_fit(f)
+        # sift_features = np.vstack((sift_features, f))
+    # mbk.fit(sift_features)
+    return vector_quantization(features)
 
 
 def vector_quantization(features):
-    mbk = MiniBatchKMeans(n_clusters=200)
-    vq = mbk.fit_predict(features)
-    vals, bounds, _ = plt.hist(vq, bins=200, histtype='step')
-    return vals
+    X = []
+    y = []
+    count = 0
+    for f, label in features:
+        count += len(f)
+        vq = mbk.predict(f)
+        vals, bins, _ = plt.hist(vq, bins=200, histtype='step')
+        X.append(vals)
+        y.append(label)
+    return X, y, count
 
 
-def get_feature(args):
+def get_features(args):
     i = args[0]
     data = args[1]
     print(i)
@@ -30,50 +45,35 @@ def get_feature(args):
     label = data[i][0]
     sift = cv2.xfeatures2d.SIFT_create()
     kp, des = sift.detectAndCompute(img, None)
-    # for images that don't have enough features
-    while des.shape[0] <= 500:
-        des = np.vstack((des, des))
-    vq = vector_quantization(
-        des[np.random.choice(des.shape[0], 500)])
-    return [vq, label]
-
-
-def sort_features(features):
-    X = []
-    y = []
-    feature_count = 0
-    for feature, label in features:
-        X.append(feature)
-        y.append(label)
-        feature_count += feature.shape[0]
-        import pdb
-        pdb.set_trace()
-    return X, y, feature_count
+    # return [des[np.random.choice(des.shape[0], 1500)], label]
+    return [des, label]
 
 
 pool = Pool(os.cpu_count())
 try:
     pickle_rw = open("clf_sift.pickle", "rb")
-    clf = pickle.load(pickle_rw)
+    models = pickle.load(pickle_rw)
+    clf = models[0]
+    mbk = models[1]
 except:
-    # get_feature(324)
+    # get_features(324)
     print("Training")
-    features = pool.map(get_feature, [(i, data_train)
-                                      for i in range(len(data_train))])
+    features = pool.map(get_features, [(i, data_train)
+                                       for i in range(len(data_train))])
 
-    X, y, count = sort_features(features)
+    X, y, count = vector_quantization_train(features)
     print("Number of features: ", count)
     clf = LinearSVC()
     clf.fit(X, y)
     # save pickle the model
-    pickle_rw = open("clf_sift_"+str(count)+".pickle", "wb")
-    pickle.dump(clf, pickle_rw)
+    pickle_rw = open("clf_sift.pickle", "wb")
+    pickle.dump([clf, mbk], pickle_rw)
     pickle_rw.close()
 
 print("Testing")
-features = pool.map(get_feature, [(i, data_test)
-                                  for i in range(len(data_test))])
-X, y, count = sort_features(features)
+features = pool.map(get_features, [(i, data_test)
+                                   for i in range(len(data_test))])
+X, y, count = vector_quantization(features)
 print("Number of features: ", count)
 predictions = clf.predict(X)
 accuracy = np.count_nonzero(np.where(predictions == y)[
