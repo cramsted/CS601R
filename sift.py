@@ -19,8 +19,6 @@ def vector_quantization_train(features):
     sift_features = np.empty((0, 128))
     for f, label in features:
         mbk.partial_fit(f)
-        # sift_features = np.vstack((sift_features, f))
-    # mbk.fit(sift_features)
     return vector_quantization(features)
 
 
