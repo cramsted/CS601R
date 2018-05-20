@@ -7,11 +7,12 @@ import os
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.metrics import confusion_matrix
 from sklearn.svm import LinearSVC
+import pickle
 import image_operations as img_op
 
 ds = DataSet()
-data_train = ds.butterfly_train
-data_test = ds.butterfly_test
+data_train = ds.training_set
+data_test = ds.test_set
 
 mbk = MiniBatchKMeans(n_clusters=200)
 
@@ -43,7 +44,7 @@ def get_features(args):
     data = args[1]
     img = ds.get_image(data[i][1])
     label = data[i][0]
-    sift = cv2.xfeatures2d.SIFT_create(1000)
+    sift = cv2.xfeatures2d.SIFT_create(500)
     kp, des = sift.detectAndCompute(img, None)
     return [des, label]
 
@@ -66,8 +67,12 @@ print("Number of features: ", count)
 predictions = clf.predict(X)
 accuracy = np.count_nonzero(np.where(predictions == y)[
                             0]) / predictions.shape[0]
-print("Accuracy: ", accuracy)
+print("Accuracy ", accuracy)
 cm = confusion_matrix(y, predictions)
 plt.figure()
-img_op.plot_confusion_matrix(cm, classes=range(
-    1, 11), title='SIFT w/ VQ Confusion Matrix')
+plt.subplot(121)
+img_op.plot_confusion_matrix(
+    cm, classes=['butterflies', 'birds'], title='SIFT w/ VQ Confusion Matrix')
+plt.subplot(122)
+img_op.precision_recall(y, predictions)
+plt.show()

@@ -26,9 +26,10 @@ class DataSet:
             for j in imgs:
                 self.butterfly_train.append((i, j))
 
-        self.training_set = copy.copy(self.butterfly_train)
+        # self.training_set = copy.copy(self.butterfly_train)
+        self.training_set = [[0, path] for label, path in self.butterfly_train]
         for i in range(len(self.butterfly_train)):
-            self.training_set.append((11, self.bird_image_paths[i]))
+            self.training_set.append((1, self.bird_image_paths[i]))
 
     def get_test_set(self):
         self.butterfly_test = []
@@ -37,9 +38,10 @@ class DataSet:
             for j in imgs:
                 self.butterfly_test.append((i, j))
 
-        self.test_set = copy.copy(self.butterfly_test)
+        # self.test_set = copy.copy(self.butterfly_test)
+        self.test_set = [[0, path] for label, path in self.butterfly_test]
         for i in range(len(self.butterfly_test)):
-            self.test_set.append((11, self.bird_image_paths[i]))
+            self.test_set.append((1, self.bird_image_paths[i]))
 
     def get_image(self, path):
         path = "../leedsbutterfly/" + path

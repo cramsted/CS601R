@@ -1,6 +1,7 @@
 from DataSet import DataSet
 import matplotlib.pyplot as plt
 import cv2
+from sklearn.metrics import confusion_matrix
 import image_operations as img_op
 import numpy as np
 from multiprocessing import Pool
@@ -23,25 +24,6 @@ def make_image_histogram(kps, lbp):
     return vals
 
 
-def LBP(img):
-    masks = []
-    offsets = [[1, 1],
-               [1, 0],
-               [1, -1],
-               [0, -1],
-               [-1, -1],
-               [-1, 0],
-               [-1, 1],
-               [0, 1]]
-    ymax, xmax = img.shape
-    for x, y in offsets:
-        masks.append(img[1+y:ymax-1+y, 1+x:xmax-1+x] > img[1:-1, 1:-1])
-    lbp = np.zeros(masks[-1].shape)
-    for i, mask in enumerate(masks):
-        lbp += mask * 2**i
-    return lbp
-
-
 def get_features(args):
     i = args[0]
     data = args[1]
@@ -49,7 +31,7 @@ def get_features(args):
     img = ds.get_image(data[i][1])
     label = data[i][0]
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    lbp = LBP(gray)
+    lbp = img_op.LBP(gray)
     vals, bins, _ = plt.hist(
         lbp[::5, ::5].flatten(), bins=256, histtype='step')
     return [vals, label]
@@ -81,4 +63,9 @@ X, y = clf_format_data(features)
 predictions = clf.predict(X)
 accuracy = np.count_nonzero(np.where(predictions == y)[
                             0]) / predictions.shape[0]
-print(accuracy)
+print("Accuracy: ", accuracy)
+cm = confusion_matrix(y, predictions)
+plt.figure()
+img_op.plot_confusion_matrix(cm, classes=range(
+    1, 11), title='Dense Sampling w/ LBP Confusion Matrix')
+plt.show()
