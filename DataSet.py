@@ -18,6 +18,14 @@ class DataSet:
 
         self.get_training_set()
         self.get_test_set()
+        self.get_k_histogram_set()
+
+    def get_k_histogram_set(self):
+        self.k_histogram = []
+        for i in range(1, 11):
+            for j in range(20):
+                self.k_histogram.append(
+                    [i, self.data["training_images"][str(i)][j]])
 
     def get_training_set(self):
         self.butterfly_train = []

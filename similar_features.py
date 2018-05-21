@@ -69,7 +69,7 @@ for i in np.random.randint(99, size=6):
             predict = mbk.predict([des])
             if predict == j:
                 patches.append(img_op.getPatchFor(
-                    kp, ds.get_image(data_train[i][1])))
+                    kp, cv2.cvtColor(ds.get_image(data_train[i][1]), cv2.COLOR_BGR2GRAY)))
     similar_patches.append(patches)
 images = []
 for patches in similar_patches:
@@ -84,5 +84,5 @@ for patches in similar_patches:
 print(len(images))
 for i in range(1, 5):
     plt.subplot(4, 1, i)
-    plt.imshow(images[i])
+    plt.imshow(cv2.cvtColor(images[i-1], cv2.COLOR_GRAY2RGB))
 plt.show()

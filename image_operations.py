@@ -93,18 +93,48 @@ def plot_confusion_matrix(cm, classes,
     # plt.show()
 
 
-def precision_recall(y_test, y_score):
-    average_precision = average_precision_score(y_test, y_score)
-    precision, recall, _ = precision_recall_curve(y_test, y_score)
+def precision_recall(y_test, confidences):
+    sortArgs = np.argsort(confidences)
+    scores = np.empty((0, 2))
+    for i in sortArgs:
+        scores = np.vstack((scores, [y_test[i], confidences[i]]))
+    pr = np.empty((0, 2))
+    for i in range(1, scores.shape[0]-1):
+        s0, s1 = np.split(scores, [i])
+        recall = get_recall(s0, s1)
+        precision = get_precision(s0, s1)
+        pr = np.vstack((pr, [recall, precision]))
+    plt.plot(pr[:, 0], pr[:, 1])
+    plt.title("PR curve for detection of birds and butterflies")
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
+    # average_precision = average_precision_score(y_test, y_score)
+    # precision, recall, _ = precision_recall_curve(y_test, y_score)
 
-    plt.step(recall, precision, color='b', alpha=0.2,
-             where='post')
-    plt.fill_between(recall, precision, step='post', alpha=0.2,
-                     color='b')
+    # plt.step(recall, precision, color='b', alpha=0.2,
+    #          where='post')
+    # plt.fill_between(recall, precision, step='post', alpha=0.2,
+    #                  color='b')
 
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.ylim([0.0, 1.05])
-    plt.xlim([0.0, 1.0])
-    plt.title('2-class Precision-Recall curve: AP={0:0.2f}'.format(
-        average_precision))
+    # plt.xlabel('Recall')
+    # plt.ylabel('Precision')
+    # plt.ylim([0.0, 1.05])
+    # plt.xlim([0.0, 1.0])
+    # plt.title('2-class Precision-Recall curve: AP={0:0.2f}'.format(
+    #     average_precision))
+
+
+def get_precision(s0, s1):
+    tp = np.count_nonzero(s0[:, 0] == 0)
+    fp = s0.shape[0] - tp
+    try:
+        return tp / (tp + fp)
+    except:
+        import pdb
+        pdb.set_trace()
+
+
+def get_recall(s0, s1):
+    tp = np.count_nonzero(s0[:, 0] == 0)
+    fn = s1.shape[0] - np.count_nonzero(s1[:, 0] == 1)
+    return tp / (tp + fn)

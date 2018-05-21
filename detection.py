@@ -74,5 +74,7 @@ plt.subplot(121)
 img_op.plot_confusion_matrix(
     cm, classes=['butterflies', 'birds'], title='SIFT w/ VQ Confusion Matrix')
 plt.subplot(122)
-img_op.precision_recall(y, predictions)
+confidences = clf.decision_function(X)
+img_op.precision_recall(y, confidences)
+# img_op.precision_recall(y, predictions)
 plt.show()
