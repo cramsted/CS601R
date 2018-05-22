@@ -57,6 +57,7 @@ X = np.asarray(X).T
 y = np.asarray(y)
 plt.subplot(121)
 plt.imshow(X, cmap='jet', interpolation='nearest')
+plt.title("Heat Map of All Histograms")
 
 # X_category = np.ones(X.shape)
 # y = np.asarray(y)
@@ -76,4 +77,5 @@ for i in range(1, 11):
             X_cat = np.vstack((X_cat, avg))
 plt.subplot(122)
 plt.imshow(X_cat.T, cmap='jet', interpolation='nearest')
+plt.title("Heat Map of Averaged Histograms for each Catgory")
 plt.show()

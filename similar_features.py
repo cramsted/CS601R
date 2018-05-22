@@ -13,29 +13,7 @@ ds = DataSet()
 data_train = ds.butterfly_train
 data_test = ds.butterfly_test
 
-mbk = MiniBatchKMeans(n_clusters=200)
-
-
-# def vector_quantization_train(features):
-#     sift_features = np.empty((0, 128))
-#     for f, label in features:
-#         mbk.partial_fit(f)
-#     return vector_quantization(features)
-
-
-# def vector_quantization(features):
-#     X = []
-#     y = []
-#     count = 0
-#     for f, label in features:
-#         count += len(f)
-#         vq = mbk.predict(f)
-#         vals, bins, _ = plt.hist(vq, bins=200, histtype='step')
-#         X.append(vals)
-#         y.append(label)
-#     # plt.show()
-#     plt.close()
-#     return X, y, count
+mbk = MiniBatchKMeans(n_clusters=400)
 
 
 def get_features(args):
@@ -43,15 +21,12 @@ def get_features(args):
     data = args[1]
     img = ds.get_image(data[i][1])
     label = data[i][0]
-    sift = cv2.xfeatures2d.SIFT_create(300)
+    sift = cv2.xfeatures2d.SIFT_create(1000)
     kp, des = sift.detectAndCompute(img, None)
     return [kp, des]
 
 
-# pool = Pool(os.cpu_count())
 print("Training")
-# features = pool.map(get_features, [(i, data_train)
-#                                    for i in range(len(data_train))])
 features = []
 for i in range(50):
     features.append(get_features([i, data_train]))

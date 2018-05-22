@@ -42,7 +42,6 @@ def make_image_histogram(kps, lbp):
 def get_features(args):
     i = args[0]
     data = args[1]
-    print(i)
     img = ds.get_image(data[i][1])
     label = data[i][0]
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -81,6 +80,6 @@ accuracy = np.count_nonzero(np.where(predictions == y)[
 print("Accuracy: ", accuracy)
 cm = confusion_matrix(y, predictions)
 plt.figure()
-img_op.plot_confusion_matrix(cm, classes=range(
-    1, 11), title='SIFT LBP & Spacial Pyramid pooling Confusion Matrix')
+img_op.plot_confusion_matrix(
+    cm, classes=ds.categories, title='SIFT LBP & Spacial Pyramid pooling Confusion Matrix  \nAccuracy={}'.format(accuracy))
 plt.show()

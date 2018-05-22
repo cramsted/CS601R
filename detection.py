@@ -14,7 +14,7 @@ ds = DataSet()
 data_train = ds.training_set
 data_test = ds.test_set
 
-mbk = MiniBatchKMeans(n_clusters=200)
+mbk = MiniBatchKMeans(n_clusters=400)
 
 
 def vector_quantization_train(features):
@@ -31,7 +31,7 @@ def vector_quantization(features):
     for f, label in features:
         count += len(f)
         vq = mbk.predict(f)
-        vals, bins, _ = plt.hist(vq, bins=200, histtype='step')
+        vals, bins, _ = plt.hist(vq, bins=400, histtype='step')
         X.append(vals)
         y.append(label)
     # plt.show()
@@ -72,7 +72,7 @@ cm = confusion_matrix(y, predictions)
 plt.figure()
 plt.subplot(121)
 img_op.plot_confusion_matrix(
-    cm, classes=['butterflies', 'birds'], title='SIFT w/ VQ Confusion Matrix')
+    cm, classes=['butterflies', 'birds'], title='SIFT w/ VQ Confusion Matrix \nAccuracy={}'.format(accuracy))
 plt.subplot(122)
 confidences = clf.decision_function(X)
 img_op.precision_recall(y, confidences)

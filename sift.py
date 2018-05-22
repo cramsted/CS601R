@@ -7,13 +7,14 @@ import os
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.metrics import confusion_matrix
 from sklearn.svm import LinearSVC
+from sklearn.ensemble import RandomForestClassifier
 import image_operations as img_op
 
 ds = DataSet()
 data_train = ds.butterfly_train
 data_test = ds.butterfly_test
 
-mbk = MiniBatchKMeans(n_clusters=200)
+mbk = MiniBatchKMeans(n_clusters=400)
 
 
 def vector_quantization_train(features):
@@ -30,7 +31,7 @@ def vector_quantization(features):
     for f, label in features:
         count += len(f)
         vq = mbk.predict(f)
-        vals, bins, _ = plt.hist(vq, bins=200, histtype='step')
+        vals, bins, _ = plt.hist(vq, bins=400, histtype='step')
         X.append(vals)
         y.append(label)
     # plt.show()
@@ -56,6 +57,7 @@ features = pool.map(get_features, [(i, data_train)
 X, y, count = vector_quantization_train(features)
 print("Number of features: ", count)
 clf = LinearSVC()
+# clf = RandomForestClassifier()
 clf.fit(X, y)
 
 print("Testing")
@@ -69,5 +71,6 @@ accuracy = np.count_nonzero(np.where(predictions == y)[
 print("Accuracy: ", accuracy)
 cm = confusion_matrix(y, predictions)
 plt.figure()
-img_op.plot_confusion_matrix(cm, classes=range(
-    1, 11), title='SIFT w/ VQ Confusion Matrix')
+img_op.plot_confusion_matrix(
+    cm, classes=ds.categories, title='SIFT w/ VQ Confusion Matrix  \nAccuracy={}'.format(accuracy))
+plt.show()

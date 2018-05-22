@@ -10,11 +10,13 @@ import sys
 class DataSet:
     def __init__(self):
         # Note: use the miniBatchKMeans for vector quantization
-        self.bird_image_paths = glob.glob("../birds/birds/*jpg")
+        self.bird_image_paths = glob.glob("../birds/*jpg")
 
         with open("leeds_dataset_info_corrected.json", "r") as read_file:
             self.data = json.load(read_file)
-        self.categories = self.data["categories"]
+        self.categories = []
+        for i in range(1, 11):
+            self.categories.append(self.data["categories"][str(i)])
 
         self.get_training_set()
         self.get_test_set()
@@ -52,7 +54,7 @@ class DataSet:
             self.test_set.append((1, self.bird_image_paths[i]))
 
     def get_image(self, path):
-        path = "../leedsbutterfly/" + path
+        path = "../" + path
         try:
             img = cv2.imread(path, 1)  # color image
             if img is None:

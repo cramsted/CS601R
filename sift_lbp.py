@@ -31,7 +31,7 @@ def get_features(args):
     label = data[i][0]
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     lbp = img_op.LBP(gray)
-    sift = cv2.xfeatures2d.SIFT_create(500)
+    sift = cv2.xfeatures2d.SIFT_create(1000)
     kp, des = sift.detectAndCompute(gray, None)
     return [make_image_histogram(kp, lbp), label]
 
@@ -65,6 +65,6 @@ accuracy = np.count_nonzero(np.where(predictions == y)[
 print("Accuracy: ", accuracy)
 cm = confusion_matrix(y, predictions)
 plt.figure()
-img_op.plot_confusion_matrix(cm, classes=range(
-    1, 11), title='SIFT w/ LBP Confusion Matrix')
+img_op.plot_confusion_matrix(
+    cm, classes=ds.categories, title='SIFT w/ LBP Confusion Matrix  \nAccuracy={}'.format(accuracy))
 plt.show()

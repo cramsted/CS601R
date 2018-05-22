@@ -7,6 +7,8 @@ import numpy as np
 from multiprocessing import Pool
 import os
 from sklearn.svm import LinearSVC
+from sklearn.ensemble import RandomForestClassifier
+
 import random
 
 ds = DataSet()
@@ -27,11 +29,11 @@ def make_image_histogram(kps, lbp):
 def get_features(args):
     i = args[0]
     data = args[1]
-    print(i)
     img = ds.get_image(data[i][1])
     label = data[i][0]
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     lbp = img_op.LBP(gray)
+    # sampling done by lbp[::x, :;x] where x is number of pixels to skip between samplings
     vals, bins, _ = plt.hist(
         lbp[::5, ::5].flatten(), bins=256, histtype='step')
     return [vals, label]
@@ -53,6 +55,7 @@ features = pool.map(get_features, [(i, data_train)
                                    for i in range(len(data_train))])
 X, y = clf_format_data(features)
 clf = LinearSVC()
+# clf = RandomForestClassifier()
 clf.fit(X, y)
 
 print("Testing")
@@ -62,10 +65,10 @@ features = pool.map(get_features, [(i, data_test)
 X, y = clf_format_data(features)
 predictions = clf.predict(X)
 accuracy = np.count_nonzero(np.where(predictions == y)[
-                            0]) / predictions.shape[0]
+    0]) / predictions.shape[0]
 print("Accuracy: ", accuracy)
 cm = confusion_matrix(y, predictions)
 plt.figure()
-img_op.plot_confusion_matrix(cm, classes=range(
-    1, 11), title='Dense Sampling w/ LBP Confusion Matrix')
+img_op.plot_confusion_matrix(
+    cm, classes=ds.categories, title='Dense Sampling w/ LBP Confusion Matrix \nAccuracy={}'.format(accuracy))
 plt.show()
